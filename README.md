@@ -47,7 +47,7 @@ I run a grid search over combinations of threshold and hedge ratio values to fin
 
 The improvement is **small but statistically significant**, suggesting that FX exposure can be selectively accepted when the interest rate differential is favorable.
 
-To see the results, first download this repository. Ensure that Python is installed on your machine. Then run the following command to install the required dependencies:
+To see the results, first download this repository. Ensure that Python is installed on your machine. Then run the following command to install the required dependencies.
 
 ```bash
 python -m pip install numpy pandas statsmodels matplotlib seaborn scipy
