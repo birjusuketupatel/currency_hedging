@@ -3,7 +3,7 @@
 
 This study investigates whether hedging foreign currency exposure in international equity portfolios improves risk-adjusted returns. I use the [Jordà-Schularick-Taylor Macrohistory Database](https://www.macrohistory.net/data/), which contains more than a century of macro-financial data across 16 developed countries.
 
-Two key papers motivate this work:
+Two key papers motivate this work.
 
 - **Boudoukh et al. (2015), “Risk Without Reward: The Case for Strategic FX Hedging”**  
   The authors argue that currency exposure contributes volatility to global portfolios without meaningful compensation in the form of return.
