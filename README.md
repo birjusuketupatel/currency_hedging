@@ -35,7 +35,7 @@ These results support a **default position of full FX hedging** for internationa
 
 However, hedging becomes expensive when the interest rate in the foreign country exceeds that of the U.S. (FX carry is negative). To test this, I evaluate a dynamic hedging rule.
 
-Hedge fully unless foreign rates exceed U.S. rates by more than a threshold. If so, hedge only a fraction of the currency exposure.
+**Hedge fully unless foreign rates exceed U.S. rates by more than a threshold. If so, hedge only a fraction of the currency exposure.**
 
 I run a grid search over combinations of threshold and hedge ratio values to find the optimal parameters.
 
