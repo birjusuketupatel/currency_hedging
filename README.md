@@ -11,11 +11,9 @@ Two key papers motivate this work:
 - **Lustig, Roussanov, and Verdelhan (2008), “Common Risk Factors in Currency Markets”**  
   They show that FX carry returns, driven by interest rate differentials, are explained by exposure to a common risk factor.
 
-### Static Hedging
+## Static Hedging
 
 I begin by replicating the core empirical result: **currency-hedged portfolios offer similar average returns to unhedged ones but with less volatility**.
-
----
 
 #### USD-Adjusted Excess Return Statistics
 
@@ -31,23 +29,21 @@ I begin by replicating the core empirical result: **currency-hedged portfolios o
 | Welch’s t-test (Mean: Hedged > Unhedged) | 0.274     | 0.392   | Fail to reject H₀ (not significantly different) |
 | F-test (Variance: Hedged < Unhedged)    | 0.794     | <0.001  | Reject H₀ (hedged volatility is significantly lower) |
 
----
-
 These results support a **default position of full FX hedging** for international equity exposure.
 
-### Dynamic Hedging Strategy
+## Dynamic Hedging Strategy
 
 However, hedging becomes expensive when the interest rate in the foreign country exceeds that of the U.S. (FX carry is negative). To test this, I evaluate a dynamic hedging rule.
+
 Hedge fully unless foreign rates exceed U.S. rates by more than a threshold. If so, hedge only a fraction of the currency exposure.
+
 I run a grid search over combinations of threshold and hedge ratio values to find the optimal parameters.
 
----
 #### Sharpe Ratio Comparison
 
 | Threshold | Hedge Ratio | Dynamic Sharpe | Static Sharpe | Sharpe Gain | t-Stat | p-Value |
 |-----------|-------------|----------------|---------------|-------------|--------|---------|
 | 1.0%      | 50%         | 0.293          | 0.286         | +0.007      | 1.67   | 0.047   |
----
 
 The improvement is **small but statistically significant**, suggesting that FX exposure can be selectively accepted when the interest rate differential is favorable.
 
@@ -57,7 +53,7 @@ To see the results, first download this repository. Ensure that Python is instal
 python -m pip install numpy pandas statsmodels matplotlib seaborn scipy
 ```
 
-### Scripts
+## Scripts
 - `index.py` — Builds cumulative return indices (hedged, unhedged, dynamic)
 - `hedged_vs_unhedged.py` — Performs mean and variance statistical comparisons
 - `currency_carry.py` — Calculates FX carry and explores return drivers
