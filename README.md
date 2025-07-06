@@ -33,9 +33,13 @@ These results support a **default position of full FX hedging** for internationa
 
 ## Dynamic Hedging Strategy
 
-However, hedging becomes expensive when the interest rate in the foreign country exceeds that of the U.S. (FX carry is negative). To test this, I evaluate a dynamic hedging rule.
+However, hedging becomes expensive when the interest rate in the foreign country exceeds that of the U.S. To control for this, I evaluate a dynamic hedging rule.
 
 **Hedge fully unless foreign rates exceed U.S. rates by more than a threshold. If so, hedge only a fraction of the currency exposure.**
+
+This rule exploits the fact that returns on currency carry are positively correlated with the spread between the U.S. and foreign short-term interest rate.
+
+![Carry Return Forecastability](carry_return_vs_rate_spread.png)
 
 I run a grid search over combinations of threshold and hedge ratio values to find the optimal parameters.
 
