@@ -62,3 +62,4 @@ python -m pip install numpy pandas statsmodels matplotlib seaborn scipy
 - `hedged_vs_unhedged.py` — Performs mean and variance statistical comparisons
 - `currency_carry.py` — Calculates FX carry and explores return drivers
 - `optimal_params.py` — Runs a grid search to find optimal parameters for the dynamic hedging strategy
+- `fx_as_inflation_hedge` - Tests if foreign currencies can be used to hedge US inflation risk
