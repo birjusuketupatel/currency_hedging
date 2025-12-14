@@ -67,7 +67,7 @@ avg_portfolio['country'] = 'Average'
 df = pd.concat([df, avg_portfolio], ignore_index=True)
 
 # === Select only relevent rows ===
-df = df[['country', 'year', 'us_inf', 'currency_carry', 'delta_rf']]
+df = df[['country', 'year', 'us_inf', 'inf', 'currency_carry', 'delta_rf']]
 
 # === Calculate correlations between US inflation and foreign currency returns ===
 results = []
@@ -209,3 +209,110 @@ summary_df[['Mean Excess Return',
 )
 
 print(summary_df)
+
+# === Single-country scatter: 1y return vs 1y US inflation ===
+country_name = "Norway"   # e.g. "Norway", "Japan", "Average"
+
+g = (
+    df[df['country'] == country_name]
+    .dropna(subset=['currency_carry', 'us_inf'])
+    .sort_values('year')
+    .copy()
+)
+
+# log returns (consistent with your regressions)
+g['log_carry'] = np.log(g['currency_carry'])
+g['log_us_inf'] = np.log(g['us_inf'])
+
+x = g['log_us_inf']
+y = g['log_carry']
+
+X = sm.add_constant(x)
+m = sm.OLS(y, X).fit()
+
+corr = np.corrcoef(x, y)[0, 1]
+
+plt.figure(figsize=(7, 5))
+plt.scatter(x, y, alpha=0.7)
+
+xx = np.linspace(x.min(), x.max(), 200)
+plt.plot(xx, m.params['const'] + m.params['log_us_inf'] * xx)
+
+plt.xlabel("Log U.S. Inflation (1y)")
+plt.ylabel(f"Log Carry Return ({country_name}, 1y)")
+plt.title(
+    f"{country_name} | corr={corr:.2f} | "
+    f"beta={m.params['log_us_inf']:.2f} | t={m.tvalues['log_us_inf']:.2f}"
+)
+
+plt.tight_layout()
+plt.show()
+
+# === Plot inflation rates for all countries + bold average ===
+# Use only the real countries (exclude USA if you want), and exclude the existing 'Average' rows
+inf_base = df[df['country'].isin(countries)].copy()
+
+# Convert gross inflation (CPI_t / CPI_{t-1}) to inflation rate (percent change)
+inf_base['inf_rate'] = inf_base['inf'] - 1.0
+
+# Build simple average inflation rate across non-US countries each year
+avg_inf = (
+    inf_base[inf_base['country'] != 'USA']
+    .groupby('year', as_index=False)['inf_rate']
+    .mean()
+)
+avg_inf['country'] = 'Average'
+
+plt.figure(figsize=(10, 5))
+
+# Plot each country's inflation
+for country, g in inf_base.groupby('country'):
+    g = g.sort_values('year').dropna(subset=['inf_rate'])
+    plt.plot(g['year'], g['inf_rate'], alpha=0.6, label=country)
+
+# Plot average inflation in bold
+avg_inf = avg_inf.sort_values('year')
+plt.plot(avg_inf['year'], avg_inf['inf_rate'], linewidth=4.0, alpha=1.0, label='Average')
+
+plt.axhline(0, linewidth=0.8)
+plt.xlabel("Year")
+plt.ylabel("Inflation Rate (CPI % change)")
+plt.title("Inflation Rates by Country (Fiat Period)")
+plt.legend(ncol=3, fontsize=8)
+plt.tight_layout()
+plt.show()
+
+# === Export inflation data to WIDE CSV for Datawrapper ===
+
+# Base inflation data (real countries only)
+inf_base = df[df['country'].isin(countries)].copy()
+
+# Convert gross inflation to inflation rate
+inf_base['inflation_rate'] = (inf_base['inf'] - 1.0) * 100
+
+# Pivot to wide format: one column per country
+inf_wide = (
+    inf_base
+    .pivot(index='year', columns='country', values='inflation_rate')
+    .sort_index()
+)
+
+# Compute average inflation across non-US countries
+non_us_cols = [c for c in inf_wide.columns if c != 'USA']
+inf_wide['Average'] = inf_wide[non_us_cols].mean(axis=1)
+
+# Optional: reorder columns (USA first, Average last)
+ordered_cols = (
+    (['USA'] if 'USA' in inf_wide.columns else []) +
+    [c for c in countries if c in inf_wide.columns and c != 'USA'] +
+    ['Average']
+)
+inf_wide = inf_wide[ordered_cols]
+
+# Write to CSV
+inf_wide.reset_index().to_csv(
+    "inflation_wide_for_datawrapper.csv",
+    index=False
+)
+
+print("Exported wide inflation CSV to inflation_wide_for_datawrapper.csv")
