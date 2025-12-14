@@ -104,7 +104,7 @@ df = build_index_with_gaps(df, 'equity_excess_return_usd_unhedged', 'equity_inde
 df = build_index_with_gaps(df, 'equity_excess_return_usd_dynamically_hedged', 'equity_index_usd_dynamically_hedged')
 
 # === Plot for a single example country ===
-country = 'Australia'
+country = 'Switzerland'
 plot_df = df[df['country'] == country].copy()
 
 # Identify missing years after first valid year

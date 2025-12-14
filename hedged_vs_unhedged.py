@@ -76,6 +76,7 @@ plt.bar(x, dynamic_probs, width, label='Dynamically Hedged', color='green')
 plt.bar(x + width, unhedged_probs, width, label='Unhedged', color='blue')
 
 plt.ylabel("Probability")
+plt.xlabel("Loss")
 plt.title("Tail Risk Comparison (Hedged vs. Dynamic vs. Unhedged)")
 plt.xticks(x, labels)
 plt.ylim(0, max(max(hedged_probs), max(unhedged_probs), max(dynamic_probs)) * 1.2)
