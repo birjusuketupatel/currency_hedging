@@ -1,9 +1,52 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import ttest_ind, f
+import numpy as np
+from scipy.stats import norm
+
+def sharpe_test_jobson_korkie(a, b, label_a, label_b):
+    """
+    One-sided Jobson–Korkie test with Memmel correction:
+    H1: Sharpe(a) > Sharpe(b)
+    """
+    tmp = pd.concat([a.rename("a"), b.rename("b")], axis=1).dropna()
+    A = tmp["a"].values
+    B = tmp["b"].values
+    n = len(tmp)
+
+    ma, sa = A.mean(), A.std(ddof=1)
+    mb, sb = B.mean(), B.std(ddof=1)
+
+    SR_a = ma / sa
+    SR_b = mb / sb
+
+    rho = np.corrcoef(A, B)[0, 1]
+
+    den = np.sqrt((1.0 / n) * (
+        2.0 * (1.0 - rho)
+        + 0.5 * (SR_a**2 + SR_b**2 - 2.0 * rho * SR_a * SR_b)
+    ))
+    z = (SR_a - SR_b) / den
+    p = 1.0 - norm.cdf(z)  # one-sided
+
+    print(f"\n=== Sharpe Ratio Test ({label_a} > {label_b}) ===")
+    print(f"n (paired)      = {n}")
+    print(f"Sharpe {label_a}= {SR_a:.4f}")
+    print(f"Sharpe {label_b}= {SR_b:.4f}")
+    print(f"rho             = {rho:.3f}")
+    print(f"z-stat          = {z:.3f}")
+    print(f"one-sided p     = {p:.4f}")
+
+    if p < 0.05:
+        print(f"Reject H0: {label_a} Sharpe is significantly higher than {label_b}.")
+    else:
+        print(f"Fail to reject H0: No significant Sharpe improvement.")
 
 # === Load data ===
 df = pd.read_csv("equity_excess_returns.csv")
+
+df = df[df["country"] != "USA"]
+
 hedged = df['equity_excess_return_usd_hedged'].dropna()
 unhedged = df['equity_excess_return_usd_unhedged'].dropna()
 dynamically_hedged = df['equity_excess_return_usd_dynamically_hedged'].dropna()
@@ -89,3 +132,28 @@ plt.show()
 print("\nTail Risk Probabilities:")
 for label, h, d, u in zip(labels, hedged_probs, dynamic_probs, unhedged_probs):
     print(f"{label}: Hedged = {h:.2%}, Dynamically Hedged = {d:.2%}, Unhedged = {u:.2%}")
+
+# === Sharpe ratio comparison test (Jobson-Korkie w/ Memmel correction) ===
+# === Sharpe ratio comparisons ===
+HEDGE_FEE_ANNUAL = 0.0  # percent per year
+
+# Net returns
+hedged_net = hedged - HEDGE_FEE_ANNUAL / 100.0
+dynamic_net = dynamically_hedged - HEDGE_FEE_ANNUAL / 100.0  # set to 0 if no fee
+unhedged_net = unhedged
+
+# Hedged vs Unhedged
+sharpe_test_jobson_korkie(
+    hedged_net,
+    unhedged_net,
+    label_a="Hedged (net)",
+    label_b="Unhedged"
+)
+
+# Dynamic Hedged vs Unhedged
+sharpe_test_jobson_korkie(
+    dynamic_net,
+    unhedged_net,
+    label_a="Dynamic Hedged (net)",
+    label_b="Unhedged"
+)
